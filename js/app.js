@@ -1,6 +1,8 @@
 var allEnemies = [];
 var player;
-var isGameOver; 
+var isGameOver;
+var score;
+var scoreEl;
 
 // Enemies our player must avoid
 var Enemy = function() {
@@ -19,11 +21,7 @@ var Enemy = function() {
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
     this.x += this.speed * dt;
-     
     if(this.x > 500){
         this.moveWithRandonSpeed();
     } 
@@ -133,7 +131,7 @@ Player.prototype.handleInput = function(direction){
   this.direction = direction; 
   switch(direction){
      case 'left':
-        (!this.onLeftLimit()) && ( this.x -= 20);
+        ((!this.onLeftLimit()) && ( this.x -= 20)) || (getScore('up')); //when reaches the top it gets the score
         break;
      case 'right':
         (!this.onRightLimit()) && ( this.x += 20);
@@ -145,13 +143,15 @@ Player.prototype.handleInput = function(direction){
         (!this.onDownLimit()) && ( this.y += 20);
         break;    
   }  
-
 };
 
 /**
  * starts the game by objects instantiations
  */
 function startGame(enemiesNumber){
+    score = 0;
+    scoreEl = document.getElementById('score'); 
+    scoreEl.innerHTML = score;
     for(var i = 0; i < enemiesNumber; i++){
         allEnemies.push(new Enemy());
     }
@@ -214,3 +214,18 @@ function restratGame() {
     allEnemies = [];
     startGame(3);
 };
+
+/**
+ * Calculates score
+ */
+ function getScore(type){
+     switch(type){
+         case 'up':
+            score += 20;
+            scoreEl.innerHTML = score;
+            break;
+         case 'gem':
+            score += 5;
+            break;   
+     }
+ }
