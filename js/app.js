@@ -8,8 +8,8 @@ var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
     this.direction = 'left';
     this.moveWithRandonSpeed();
-    this.width = 101;
-    this.height = 101;
+    this.width = 98;
+    this.height = 80;
 }
 
 // Update the enemy's position, required method for game
@@ -161,6 +161,7 @@ function collisionDetect(things, player){
            player.y >= things[i].y && player.y <= things[i].y + things[i].height){
             return true;
         };
-        return false;
+        
     };
+    return false;
 }
