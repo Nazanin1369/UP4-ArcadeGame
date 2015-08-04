@@ -53,10 +53,12 @@ Enemy.prototype.moveWithRandonSpeed = function(){
  */
 var Player = function(){
   this.sprite = 'images/char-pink-girl.png';
+  this.heartSprite = 'images/Heart.png';
   this.direction = 'left'; 
   this.x = 200;
   this.y = 400; 
   this.width = 90;
+  this.hearts = 3;
 };
 
 //Move the player back to the initial location
@@ -98,12 +100,25 @@ Player.prototype.onDownLimit = function(){
 Player.prototype.update = function(dt){
     if(collisionDetect(allEnemies, player)){
         this.resetLocation();
+        (this.hearts != 0) && (this.hearts--);
     }
 };
 
 //render the player
 Player.prototype.render = function(){
+  var max_hearts = 3, i = 0;
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);  
+  for(i = 0; i < this.hearts; i++){
+      var x = 50 * i;
+      var y = -23;
+      ctx.drawImage(Resources.get(this.heartSprite), x, y);
+  }
+  for(; i < max_hearts; i++) {
+    var x = 50 * i;
+    var y = -23;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(x, y, 400, 70);  
+  }
 };
 
 Player.prototype.handleInput = function(direction){
