@@ -1,3 +1,49 @@
-body {
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+}
+
+canvas {
+    display: block;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#game-over, #game-over-overlay {
+    margin: auto;
+    margin-top: 120px;
+    width: 505px;
+    height: 530px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 88;
+    z-index: 1;
+    display: none;
+}
+
+#game-over-overlay {
+    background-color: black;
+    opacity: .5;
+}
+
+#game-over {
+    height: 200px;
     text-align: center;
+    color: white;
+}
+
+#game-over h1 {
+    font-size: 3em;
+    font-family: sans-serif;
+}
+
+#game-over button {
+    font-size: 1.5em;
 }

@@ -1,3 +1,7 @@
+var allEnemies = [];
+var player;
+var isGameOver; 
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -107,6 +111,10 @@ Player.prototype.update = function(dt){
 //render the player
 Player.prototype.render = function(){
   var max_hearts = 3, i = 0;
+  if(this.hearts == 0){
+      gameOver();
+      return;
+  }
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);  
   for(i = 0; i < this.hearts; i++){
       var x = 50 * i;
@@ -141,20 +149,19 @@ Player.prototype.handleInput = function(direction){
 };
 
 /**
- * Objects instantiations
+ * starts the game by objects instantiations
  */
-function createEnemies(enemiesNumber){
-    var i, enemies = [];
-    for(i = 0; i < enemiesNumber; i++){
-        enemies.push(new Enemy());
+function startGame(enemiesNumber){
+    for(var i = 0; i < enemiesNumber; i++){
+        allEnemies.push(new Enemy());
     }
-    return enemies;  
+    player = new Player();
 }
-var allEnemies = createEnemies(3);
+startGame(3);
 
-var player = new Player();
-
-/** */
+/**
+ * Listens to keyUp event to move the player
+ */
 document.addEventListener('keyup', function(e) {
   
     var allowedKeys = {
@@ -166,6 +173,12 @@ document.addEventListener('keyup', function(e) {
     if(allowedKeys[e.keyCode] == null || allowedKeys[e.keyCode] == undefined)
        return;
     player.handleInput(allowedKeys[e.keyCode]);
+});
+/**
+ * Restrat game button event listener
+ */
+document.getElementById('play-again').addEventListener('click', function() {
+    restratGame();
 });
 /**
  * detects collision between player and other things
@@ -180,3 +193,24 @@ function collisionDetect(things, player){
     };
     return false;
 }
+/**
+ * Game over function
+ */
+function gameOver() {
+    document.getElementById('game-over').style.display = 'block';
+    document.getElementById('game-over-overlay').style.display = 'block';
+    isGameOver = true;
+}
+
+
+/**
+ * restarts game to original state
+ */
+function restratGame() {
+    document.getElementById('game-over').style.display = 'none';
+    document.getElementById('game-over-overlay').style.display = 'none';
+    isGameOver = false;
+    score = 0;
+    allEnemies = [];
+    startGame(3);
+};
