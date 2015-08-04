@@ -8,6 +8,8 @@ var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
     this.direction = 'left';
     this.moveWithRandonSpeed();
+    this.width = 90;
+    this.height = 70;
 }
 
 // Update the enemy's position, required method for game
@@ -54,6 +56,7 @@ var Player = function(){
   this.direction = 'left'; 
   this.x = 200;
   this.y = 400; 
+  this.width = 90;
 };
 
 //Move the player back to the initial location
@@ -93,6 +96,7 @@ Player.prototype.onDownLimit = function(){
 };
 
 Player.prototype.update = function(dt){
+    console.log(isCollision(allEnemies, player));
 };
 
 //render the player
@@ -146,3 +150,15 @@ document.addEventListener('keyup', function(e) {
        return;
     player.handleInput(allowedKeys[e.keyCode]);
 });
+/**
+ * detects collision between player and other things
+ */
+function isCollision(things, player){
+    for(var i = 0; i < things.length; i++){
+        if(player.x + player.width >= things[i].x && player.x <= things[i].x + things[i].width &&
+           player.y >= things[i].y && player.y <= things[i].y + things[i].height){
+            return true;
+        };
+        return false;
+    };
+}
