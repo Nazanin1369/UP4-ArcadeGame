@@ -104,21 +104,24 @@ var Engine = (function(global) {
      * to the collected gem.
      */
     function checkCollisions() {
-      allEnemies.forEach(function(enemy) {
+      allEnemies.forEach(function(enemy) {//checks player and enemies collision
         if (enemy.checkCollision()) {
           player.resetLocation(true); 
           (player.hearts != 0) && (player.hearts--);
           player.reduceHeart();
         }
       });
-      if (gem.checkCollision()) {
+      if (gem.checkCollision()) {//check player and gems collision
         if (gem.sprite.match("rock")) { 
             player.resetLocation(true); 
             (player.hearts != 0) && (player.hearts--);
             player.reduceHeart(); //removes a heart from player if it collide with a rock
+            gem.hide();
         } else {
           gem.hide(); // gem hides off canvas after collected by player
         }
+        gem = new Gem();
+        gem.initialize();
       }
     }
 
@@ -161,8 +164,6 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
-
         renderEntities();
     }
 
@@ -177,7 +178,6 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-
         player.render();
         gem.render();
     }

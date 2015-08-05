@@ -1,16 +1,15 @@
 /**
  * @global {array} for up to 3 enemy objects
  * @global {object} for one player object
+ * @global {object} for one gem object
  * @global {object} for indicating lost
  * @global {object} for storing score
- * @global {object} score DOM element
  */
 var allEnemies = [];
 var player;
 var gem;
 var isGameOver;
 var score;
-var scoreEl;
 
 // Enemies our player must avoid
 var Enemy = function() {
@@ -22,8 +21,8 @@ var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
     this.direction = 'left';
     this.moveWithRandonSpeed();
-    this.width = 98;
-    this.height = 80;
+    this.width = 75;
+    this.height = 50;
 }
 
 /**
@@ -70,7 +69,11 @@ Enemy.prototype.moveWithRandonSpeed = function(){
 };
 
 /**
- * @function
+ * @function checkCollision
+ * @description It checks whether the enemyBox and the playerBox are 
+ * integrated.This is getting called by the checkCollision function in 
+ * engine.js file.
+ * @return {boolean} indicates whether collision happened or not.
  */
 Enemy.prototype.checkCollision = function(){
      if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
@@ -134,7 +137,8 @@ Player.prototype.onLeftLimit = function(){
 Player.prototype.onUpLimit = function(){
     if(this.y <= 10){
         //add to score
-        getScore('up');
+        score += 20;
+        this.assignScore(score);
         this.resetLocation();
         return true;
     }
@@ -208,7 +212,6 @@ Player.prototype.handleInput = function(direction){
 
 /**
  * @function gameOver
- * 
  * @description displays the game-over elements and 
  * sets the isGameOver value to true
  */
@@ -218,6 +221,11 @@ Player.prototype.gameOver = function(){
     isGameOver = true;
 };
 
+/**
+ * @function reduceHeart
+ * @description  It removes the lost heart from the canvas
+ * by drawing a white rectangle
+ */
 Player.prototype.reduceHeart = function(){
     var max_hearts = 3, i = 0;
     for(; i < max_hearts; i++) {
@@ -228,6 +236,15 @@ Player.prototype.reduceHeart = function(){
         (player.hearts == 0) && (player.gameOver());
     }
 }; 
+
+/**
+ * @function assignScore
+ * @description it shows the score for the player
+ */
+Player.prototype.assignScore = function(score){
+    var scoreEl = document.getElementById('score'); 
+    scoreEl.innerHTML = score;
+};
 
 /**
  * @function gem
@@ -242,21 +259,21 @@ var Gem = function(){
       'images/gem-orange.png',
       'images/key.png',
       'images/rock.png',
-      'images/selector.png',
       'images/star.png'
       ];
-      this.initialize();
+    this.initialize();
 };
 
 /**
  * @function init
- * The function initalizes the current gem. The gem gets a random image url
+ * @description The function initalizes the current gem. The gem gets a random image url
  * string and a random x and y position value.
  */
 Gem.prototype.initialize = function(){
     this.sprite = this.getRandomImageURL();
     this.x = getRandomValue(0, 4) * 101;
     this.y = getRandomValue(1, 3) * 70;
+    console.log(this.x, this.y, this.sprite);
 };
 
 /**
@@ -271,15 +288,16 @@ Gem.prototype.getRandomImageURL = function() {
 
 /**
  * @function render
- * The function draws the current gem sprite onto the canvas.
+ * @description The function draws the current gem sprite onto the canvas.
  */
 Gem.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    console.log("render", this.sprite, this.x, this.y)
 };
 
 /**
  * @function hide
- * The function puts the gem off canvas after it has been collected by the player.
+ * @description The function puts the gem off canvas after it has been collected by the player.
  * It also checks whether the player character matches with the gem-player list.
  * If yes, it multiplies the value of the current gem by ten. If not, it adds
  * the normal gem value to the players score.
@@ -287,12 +305,20 @@ Gem.prototype.render = function() {
 Gem.prototype.hide = function() {
     this.x = -100;
     this.y = -100;
-    score += this.gemScoreList();
 };
 
+/**
+ * @function checkCollision
+ * @description It checks whether the gemBox and the playerBox are 
+ * integrated.This is getting called by the checkCollision function in 
+ * engine.js file.
+ * @return {boolean} indicates whether collision happened or not.
+ */
 Gem.prototype.checkCollision = function(){
     if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
        player.y >= this.y && player.y <= this.y + this.height){
+        score += this.gemScoreList();   
+        player.assignScore(score);
         return true;
     };
     return false;
@@ -307,13 +333,11 @@ Gem.prototype.gemScoreList = function() {
           'blue': 10,
           'green': 20,
           'orange': 30,
-          'heart': 40,
           'key': 100,
           'rock': 0,
-          'selector': 5,
           'star': 50
     },
-        currentgem = this.sprite;
+    currentgem = this.sprite;
     for (var g in gemScore) {
       if (currentgem.match(g)) {
         return gemScore[g];
@@ -331,7 +355,6 @@ Gem.prototype.gemScoreList = function() {
  * the handleInput function.
  */
 document.addEventListener('keyup', function(e) {
-  
     var allowedKeys = {
         37: 'left',
         38: 'up',
@@ -354,29 +377,7 @@ document.getElementById('play-again').addEventListener('click', function() {
 });
 
 /**
- * @function startGame
- * @param {number} numEnemies
- * @description The function startGame initializes all global objects (<= 3 enemies,
- * 1 player,  initial score = 0) necessary to start the game.
- */
-function startGame(enemiesNumber){
-    score = 0;
-    scoreEl = document.getElementById('score'); 
-    scoreEl.innerHTML = score;
-    for(var i = 0; i < enemiesNumber; i++){
-        allEnemies.push(new Enemy());
-    }
-    player = new Player();
-    gem = new Gem();
-    gem.initialize();
-}
-//starting the game
-startGame(3);
-
-
-/**
  * @function restrartGame
- *
  * @description Restarts game to original state
  * by hiding the game-over related elements, resetting 
  * the score and game enemies and calling the startGame() function
@@ -390,25 +391,6 @@ function restratGame() {
     allEnemies = [];
     startGame(3);
 };
-
-/**
- * @function getScore
- * @param {string} type of the score 
- * 
- * @description calculates score based on the type
- * and adds it to the total value of the score
- */
- function getScore(type){
-     switch(type){
-         case 'up':
-            score += 20;
-            scoreEl.innerHTML = score;
-            break;
-         case 'gem':
-            score += 5;
-            break;   
-     }
- }
  
  /**
  * @function getRandomValue
@@ -419,3 +401,23 @@ function restratGame() {
 function getRandomValue(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+/**
+ * @function startGame
+ * @param {number} numEnemies
+ * @description The function startGame initializes all global objects (<= 3 enemies,
+ * 1 player,  initial score = 0) necessary to start the game.
+ */
+function startGame(enemiesNumber){
+    score = 0;
+    for(var i = 0; i < enemiesNumber; i++){
+        allEnemies.push(new Enemy());
+    }
+    player = new Player();
+    player.assignScore(score);
+    gem = new Gem();
+    gem.initialize();
+}
+
+//starting the game
+startGame(3);
