@@ -51,5 +51,7 @@ canvas {
 #score {
     float: right;
     color: #000000;
-    font-size: 2em;
+    font-size: 4em;
+    margin-right: 460px;
+    margin-top: 650px;
 }

@@ -1,5 +1,12 @@
+/**
+ * @global {array} for up to 3 enemy objects
+ * @global {object} for one player object
+ * @global {object} for indicating lost
+ * @global {object} for storing score
+ * @global {object} score DOM element
+ */
 var allEnemies = [];
-var player;
+var Player;
 var isGameOver;
 var score;
 var scoreEl;
@@ -50,10 +57,15 @@ Enemy.prototype.moveWithRandonSpeed = function(){
         return 50 * (1 + Math.floor(Math.random() * 3));
     }
 };
+
+var Gem = function(){
+    this.Sprite = '';
+}
+
 /**
  * Player Object
  */
-var Player = function(){
+Player = function(){
   this.sprite = 'images/char-pink-girl.png';
   this.heartSprite = 'images/Heart.png';
   this.direction = 'left'; 
@@ -86,6 +98,8 @@ Player.prototype.onLeftLimit = function(){
 
 Player.prototype.onUpLimit = function(){
     if(this.y <= 10){
+        //add to score
+        getScore('up');
         this.resetLocation();
         return true;
     }
@@ -93,7 +107,7 @@ Player.prototype.onUpLimit = function(){
 };
 
 Player.prototype.onDownLimit = function(){
-    if(this.y >= 420){
+    if(this.y >= 400){
         return true;
     }
     return false;    
@@ -109,10 +123,7 @@ Player.prototype.update = function(dt){
 //render the player
 Player.prototype.render = function(){
   var max_hearts = 3, i = 0;
-  if(this.hearts == 0){
-      gameOver();
-      return;
-  }
+  
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);  
   for(i = 0; i < this.hearts; i++){
       var x = 50 * i;
@@ -124,6 +135,7 @@ Player.prototype.render = function(){
     var y = -23;
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(x, y, 400, 70);  
+    (this.hearts == 0) && (gameOver());
   }
 };
 
@@ -131,36 +143,28 @@ Player.prototype.handleInput = function(direction){
   this.direction = direction; 
   switch(direction){
      case 'left':
-        ((!this.onLeftLimit()) && ( this.x -= 20)) || (getScore('up')); //when reaches the top it gets the score
+        ((!this.onLeftLimit()) && ( this.x -= 50));
         break;
      case 'right':
-        (!this.onRightLimit()) && ( this.x += 20);
+        (!this.onRightLimit()) && ( this.x += 50);
         break;
      case 'up': 
-        (!this.onUpLimit()) && ( this.y -= 20); 
+        (!this.onUpLimit()) && (this.y -= 50);
         break;
      case 'down':
-        (!this.onDownLimit()) && ( this.y += 20);
+        (!this.onDownLimit()) && ( this.y += 50);
         break;    
   }  
 };
 
-/**
- * starts the game by objects instantiations
- */
-function startGame(enemiesNumber){
-    score = 0;
-    scoreEl = document.getElementById('score'); 
-    scoreEl.innerHTML = score;
-    for(var i = 0; i < enemiesNumber; i++){
-        allEnemies.push(new Enemy());
-    }
-    player = new Player();
-}
-startGame(3);
 
 /**
- * Listens to keyUp event to move the player
+ * @param {number} keyup current key pressed
+ * @param {function} function(e)
+ * Adds an event listener to the DOM that listens for allowed keypresses
+ * such as 'enter', to shuffle the player character, and the 'arrow keys', to
+ * move the player in one of four directions. Passes the current pressed key to
+ * the handleInput function.
  */
 document.addEventListener('keyup', function(e) {
   
@@ -174,14 +178,41 @@ document.addEventListener('keyup', function(e) {
        return;
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
 /**
- * Restrat game button event listener
+ * @param {number} click on 'play-again' button
+ * @param {function} function(e)
+ * Adds an event listener to the DOM that listens for click on the 'play-again'
+ * button which restarts the game.
  */
 document.getElementById('play-again').addEventListener('click', function() {
     restratGame();
 });
+
 /**
- * detects collision between player and other things
+ * @function startGame
+ * @param {number} numEnemies
+ * @description The function startGame initializes all global objects (<= 3 enemies,
+ * 1 player,  initial score = 0) necessary to start the game.
+ */
+function startGame(enemiesNumber){
+    score = 0;
+    scoreEl = document.getElementById('score'); 
+    scoreEl.innerHTML = score;
+    for(var i = 0; i < enemiesNumber; i++){
+        allEnemies.push(new Enemy());
+    }
+    player = new Player();
+}
+//starting the game
+startGame(3);
+
+
+/**
+ * @function collisionDetect
+ * @params {array} enemies or gems, {object} the player
+ * @description detects collision between player and other things
+ * @return {boolean} indicates collision happened
  */
 function collisionDetect(things, player){
     for(var i = 0; i < things.length; i++){
