@@ -80,7 +80,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     /* This is called by the update function  and loops through all of the
@@ -96,6 +96,32 @@ var Engine = (function(global) {
         });
         player.update();
     }
+    
+     /* This is called by the update function  and loops through all of the
+     * objects within your allEnemies array  and the gem as defined in app.js
+     * and calls their checkCollision() methods. If there is a collion detected,
+     * the game is over and is reset or the player gets extra scores according
+     * to the collected gem.
+     */
+    function checkCollisions() {
+      allEnemies.forEach(function(enemy) {
+        if (enemy.checkCollision()) {
+          player.resetLocation(true); 
+          (player.hearts != 0) && (player.hearts--);
+          player.reduceHeart();
+        }
+      });
+      if (gem.checkCollision()) {
+        if (gem.sprite.match("rock")) { 
+            player.resetLocation(true); 
+            (player.hearts != 0) && (player.hearts--);
+            player.reduceHeart(); //removes a heart from player if it collide with a rock
+        } else {
+          gem.hide(); // gem hides off canvas after collected by player
+        }
+      }
+    }
+
 
     /* This function initially draws the "game level", it will then call
      * the renderEntities function. Remember, this function is called every
@@ -153,6 +179,7 @@ var Engine = (function(global) {
         });
 
         player.render();
+        gem.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -173,7 +200,13 @@ var Engine = (function(global) {
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-pink-girl.png',
-        'images/Heart.png'
+        'images/heart.png',
+        'images/gem-blue.png',
+        'images/gem-green.png',
+        'images/gem-orange.png',
+        'images/key.png',
+        'images/rock.png',
+        'images/star.png'
     ]);
     Resources.onReady(init);
 

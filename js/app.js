@@ -6,7 +6,8 @@
  * @global {object} score DOM element
  */
 var allEnemies = [];
-var Player;
+var player;
+var gem;
 var isGameOver;
 var score;
 var scoreEl;
@@ -25,8 +26,11 @@ var Enemy = function() {
     this.height = 80;
 }
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+/**
+ * @function update
+ * @param {number}  a time delta between ticks
+ * @description  Update the enemy's position, required method for game
+ */
 Enemy.prototype.update = function(dt) {
     this.x += this.speed * dt;
     if(this.x > 500){
@@ -34,11 +38,18 @@ Enemy.prototype.update = function(dt) {
     } 
 };
 
-// Draw the enemy on the screen, required method for game
+/**
+ * @function render
+ * @description Draw the enemy on the screen, required method for game
+ */
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+/**
+ * @function moveWithRandonSpeed
+ * @description sets up random x and y and speed for the enemy
+ */
 Enemy.prototype.moveWithRandonSpeed = function(){
     this.x = randomX();
     this.y = randomY();
@@ -58,16 +69,24 @@ Enemy.prototype.moveWithRandonSpeed = function(){
     }
 };
 
-var Gem = function(){
-    this.Sprite = '';
-}
+/**
+ * @function
+ */
+Enemy.prototype.checkCollision = function(){
+     if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
+       player.y >= this.y && player.y <= this.y + this.height){
+        return true;
+    };
+    return false;
+};
 
 /**
- * Player Object
+ * @function player
+ * @description sets up properties for the player
  */
 Player = function(){
   this.sprite = 'images/char-pink-girl.png';
-  this.heartSprite = 'images/Heart.png';
+  this.heartSprite = 'images/heart.png';
   this.direction = 'left'; 
   this.x = 200;
   this.y = 400; 
@@ -75,13 +94,19 @@ Player = function(){
   this.hearts = 3;
 };
 
-//Move the player back to the initial location
+/**
+ * @function resetLocation
+ * @description Moves the player back to the initial location
+ */
 Player.prototype.resetLocation = function(){
     this.x = 200;
     this.y = 400;
 };
 
-//Check x and y values not to go out of the border
+/**
+ * @function onRightLimit
+ * @description checks right boundaries for the player
+ */
 Player.prototype.onRightLimit = function(){
     if(this.x >= 400){
         return true;
@@ -89,6 +114,10 @@ Player.prototype.onRightLimit = function(){
     return false;    
 };
 
+/**
+ * @function onLeftLimit
+ * @description checks left boundaries for the player
+ */
 Player.prototype.onLeftLimit = function(){
     if(this.x <= 20){
         return true;
@@ -96,6 +125,12 @@ Player.prototype.onLeftLimit = function(){
     return false;    
 };
 
+/**
+ * @function onUpLimit
+ * @description checks top boundaries for the player
+ * Also if player reaches up it will call getScore(type) 
+ * function and reset it s location.
+ */
 Player.prototype.onUpLimit = function(){
     if(this.y <= 10){
         //add to score
@@ -106,39 +141,53 @@ Player.prototype.onUpLimit = function(){
     return false;    
 };
 
+/**
+ * @function onDownLimit
+ * @description checks bottom boundaries for the player
+ */
 Player.prototype.onDownLimit = function(){
     if(this.y >= 400){
         return true;
     }
     return false;    
 };
-
+/**
+ * @function update
+ * @param {} 
+ * @description checks whether the player collided with
+ * any enemies if so calls resetLocation() function to
+ * resets the player location.
+ * Also checks on the number of players' hearts if not zore
+ * if will decrement it once on each collision.
+ */
 Player.prototype.update = function(dt){
-    if(collisionDetect(allEnemies, player)){
-        this.resetLocation();
-        (this.hearts != 0) && (this.hearts--);
-    }
+    
 };
 
-//render the player
+/**
+ * @function render
+ * 
+ * @description draws the player and its related hearts
+ * respectively. Also removes the extra heart by drawing 
+ * a white rectangle when player looses hearts.
+ */
 Player.prototype.render = function(){
-  var max_hearts = 3, i = 0;
-  
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);  
   for(i = 0; i < this.hearts; i++){
       var x = 50 * i;
       var y = -23;
       ctx.drawImage(Resources.get(this.heartSprite), x, y);
   }
-  for(; i < max_hearts; i++) {
-    var x = 50 * i;
-    var y = -23;
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(x, y, 400, 70);  
-    (this.hearts == 0) && (gameOver());
-  }
 };
 
+/**
+ * @function handleInput
+ * @param {string} indicates the direction of the key pressed
+ * 
+ * @description checks the direction type of the input key and 
+ * add relative value to the player position. So they player will
+ * move toward that direction.
+ */
 Player.prototype.handleInput = function(direction){
   this.direction = direction; 
   switch(direction){
@@ -157,11 +206,126 @@ Player.prototype.handleInput = function(direction){
   }  
 };
 
+/**
+ * @function gameOver
+ * 
+ * @description displays the game-over elements and 
+ * sets the isGameOver value to true
+ */
+Player.prototype.gameOver = function(){
+    document.getElementById('game-over').style.display = 'block';
+    document.getElementById('game-over-overlay').style.display = 'block';
+    isGameOver = true;
+};
+
+Player.prototype.reduceHeart = function(){
+    var max_hearts = 3, i = 0;
+    for(; i < max_hearts; i++) {
+        var x = 50 * i;
+        var y = -23;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(x, y, 400, 70);  
+        (player.hearts == 0) && (player.gameOver());
+    }
+}; 
+
+/**
+ * @function gem
+ * @description sets up game gems properties
+ */
+var Gem = function(){
+    this.width = 50;
+    this.height = 50;
+    this.imageURLs = [
+      'images/gem-blue.png',
+      'images/gem-green.png',
+      'images/gem-orange.png',
+      'images/key.png',
+      'images/rock.png',
+      'images/selector.png',
+      'images/star.png'
+      ];
+      this.initialize();
+};
+
+/**
+ * @function init
+ * The function initalizes the current gem. The gem gets a random image url
+ * string and a random x and y position value.
+ */
+Gem.prototype.initialize = function(){
+    this.sprite = this.getRandomImageURL();
+    this.x = getRandomValue(0, 4) * 101;
+    this.y = getRandomValue(1, 3) * 70;
+};
+
+/**
+ * @function getRandomImageURL
+ * @returns one random image url string for the gem sprite.
+ */
+Gem.prototype.getRandomImageURL = function() {
+    var gemImageURLs = this.imageURLs,
+        imageURL = getRandomValue(0, gemImageURLs.length - 1);
+    return gemImageURLs[imageURL];
+};
+
+/**
+ * @function render
+ * The function draws the current gem sprite onto the canvas.
+ */
+Gem.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+/**
+ * @function hide
+ * The function puts the gem off canvas after it has been collected by the player.
+ * It also checks whether the player character matches with the gem-player list.
+ * If yes, it multiplies the value of the current gem by ten. If not, it adds
+ * the normal gem value to the players score.
+ */
+Gem.prototype.hide = function() {
+    this.x = -100;
+    this.y = -100;
+    score += this.gemScoreList();
+};
+
+Gem.prototype.checkCollision = function(){
+    if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
+       player.y >= this.y && player.y <= this.y + this.height){
+        return true;
+    };
+    return false;
+};
+
+/**
+ * @function gemScoreList
+ * @returns the current gem's value from the gem-score object
+ */
+Gem.prototype.gemScoreList = function() {
+    var gemScore = {
+          'blue': 10,
+          'green': 20,
+          'orange': 30,
+          'heart': 40,
+          'key': 100,
+          'rock': 0,
+          'selector': 5,
+          'star': 50
+    },
+        currentgem = this.sprite;
+    for (var g in gemScore) {
+      if (currentgem.match(g)) {
+        return gemScore[g];
+      }
+    }
+    return 0; // fallback
+};
 
 /**
  * @param {number} keyup current key pressed
  * @param {function} function(e)
- * Adds an event listener to the DOM that listens for allowed keypresses
+ * @description Adds an event listener to the DOM that listens for allowed keypresses
  * such as 'enter', to shuffle the player character, and the 'arrow keys', to
  * move the player in one of four directions. Passes the current pressed key to
  * the handleInput function.
@@ -182,7 +346,7 @@ document.addEventListener('keyup', function(e) {
 /**
  * @param {number} click on 'play-again' button
  * @param {function} function(e)
- * Adds an event listener to the DOM that listens for click on the 'play-again'
+ * @description Adds an event listener to the DOM that listens for click on the 'play-again'
  * button which restarts the game.
  */
 document.getElementById('play-again').addEventListener('click', function() {
@@ -203,39 +367,20 @@ function startGame(enemiesNumber){
         allEnemies.push(new Enemy());
     }
     player = new Player();
+    gem = new Gem();
+    gem.initialize();
 }
 //starting the game
 startGame(3);
 
 
 /**
- * @function collisionDetect
- * @params {array} enemies or gems, {object} the player
- * @description detects collision between player and other things
- * @return {boolean} indicates collision happened
- */
-function collisionDetect(things, player){
-    for(var i = 0; i < things.length; i++){
-        if(player.x + player.width >= things[i].x && player.x <= things[i].x + things[i].width &&
-           player.y >= things[i].y && player.y <= things[i].y + things[i].height){
-            return true;
-        };
-        
-    };
-    return false;
-}
-/**
- * Game over function
- */
-function gameOver() {
-    document.getElementById('game-over').style.display = 'block';
-    document.getElementById('game-over-overlay').style.display = 'block';
-    isGameOver = true;
-}
-
-
-/**
- * restarts game to original state
+ * @function restrartGame
+ *
+ * @description Restarts game to original state
+ * by hiding the game-over related elements, resetting 
+ * the score and game enemies and calling the startGame() function
+ * to initialize the game objects
  */
 function restratGame() {
     document.getElementById('game-over').style.display = 'none';
@@ -247,7 +392,11 @@ function restratGame() {
 };
 
 /**
- * Calculates score
+ * @function getScore
+ * @param {string} type of the score 
+ * 
+ * @description calculates score based on the type
+ * and adds it to the total value of the score
  */
  function getScore(type){
      switch(type){
@@ -260,3 +409,13 @@ function restratGame() {
             break;   
      }
  }
+ 
+ /**
+ * @function getRandomValue
+ * @param {number} min
+ * @param {number} max
+ * @returns a random value within the given bounds of min and max
+ */
+function getRandomValue(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
