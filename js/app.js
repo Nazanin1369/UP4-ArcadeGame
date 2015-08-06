@@ -4,6 +4,11 @@
  * @global {object} for one gem object
  * @global {object} for indicating lost
  * @global {object} for storing score
+ * @global {object} for soundEffects and backgrounf sound
+ * @global {string} path to eatGem ".wav" file
+ * @global {string} path to gameOver ".wav" file
+ * @global {string} path to bugHit ".wav" file
+ * @global {object} backsound audio element
  */
 var allEnemies = [];
 var player;
@@ -13,9 +18,13 @@ var score;
 var soundEfx, backgroundSound; // Sound Efx
 var soundEatGem = "sounds/gem.wav"; //Eat Gem sound efx
 var soundGameOver = "sounds/gameOver.wav";
+var soundHit = "sounds/hit.wav";
 var backSound;
 
-// Enemies our player must avoid
+/**
+ * @function Enemies
+ * @description Enemies our player must avoid
+ */
 var Enemy = function() {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
@@ -82,6 +91,8 @@ Enemy.prototype.moveWithRandonSpeed = function(){
 Enemy.prototype.checkCollision = function(){
      if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
        player.y >= this.y && player.y <= this.y + this.height){
+        soundEfx.src = soundHit;
+        soundEfx.play();
         return true;
     };
     return false;
@@ -224,7 +235,7 @@ Player.prototype.gameOver = function(){
     document.getElementById('game-over-overlay').style.display = 'block';
     isGameOver = true;
     backSound = false;
-    document.getElementById("audio").remove();
+    backgroundSound.pause();
     soundEfx.src = soundGameOver;
     soundEfx.play();
 };
@@ -327,6 +338,7 @@ Gem.prototype.checkCollision = function(){
        player.y >= this.y && player.y <= this.y + this.height){
         score += this.gemScoreList();   
         player.assignScore(score);
+        soundEfx.src = soundEatGem;
         soundEfx.play();
         return true;
     };
@@ -396,6 +408,7 @@ function restratGame() {
     document.getElementById('game-over').style.display = 'none';
     document.getElementById('game-over-overlay').style.display = 'none';
     isGameOver = false;
+    soundEfx.pause();
     score = 0;
     allEnemies = [];
     startGame(3);
@@ -419,19 +432,16 @@ function getRandomValue(min, max) {
 function playBackgroundSound() {
     elems = [], index = 0
     for (var i = 0; i < 10; i++) {
-        //backgroundSound = new Audio('sounds/background.wav');
-        backgroundSound = document.createElement('audio');
-        backgroundSound.setAttribute('src','sounds/background.wav');
+        backgroundSound = document.getElementById('audio');
         elems.push(backgroundSound);
         backgroundSound.addEventListener("ended", function () {
            index++; 
            if(backSound){
-                elems[index].play();
+               (index < elems.length) && (elems[index].play());  
            }else{
                 backgroundSound.pause();
                 backgroundSound.currentTime = 0;
            }
-  
         }, false);
        if(backSound){
             elems[index].play();
@@ -460,6 +470,11 @@ function startGame(enemiesNumber){
     player.assignScore(score);
     gem = new Gem();
     gem.initialize();
+    nIntervId = setInterval(function(){
+            gem.hide();
+            gem = new Gem();
+            gem.initialize();
+    }, 10000);
 }
 
 //starting the game
