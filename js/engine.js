@@ -1,3 +1,5 @@
+/*jshint strict:false */
+/*jshint -W030 */
 /* Engine.js
  * This file provides the game loop functionality (update entities and render),
  * draws the initial game board on the screen, and then calls the update and
@@ -57,7 +59,7 @@ var Engine = (function(global) {
          * function again as soon as the browser is able to draw another frame.
          */
         win.requestAnimationFrame(main);
-    };
+    }
 
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
@@ -107,14 +109,14 @@ var Engine = (function(global) {
       allEnemies.forEach(function(enemy) {//checks player and enemies collision
         if (enemy.checkCollision()) {
           player.resetLocation(true); 
-          (player.hearts != 0) && (player.hearts--);
+          (player.hearts !== 0) && (player.hearts--);
           player.reduceHeart();
         }
       });
       if (gem.checkCollision()) {//check player and gems collision
         if (gem.sprite.match("rock")) { 
             player.resetLocation(true); 
-            (player.hearts != 0) && (player.hearts--);
+            (player.hearts !== 0) && (player.hearts--);
             player.reduceHeart(); //removes a heart from player if it collide with a rock
             gem.hide();
         } else {

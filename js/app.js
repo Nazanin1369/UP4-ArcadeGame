@@ -1,4 +1,6 @@
-/* jshint strict: true */
+/*jshint strict:false */
+/*jshint -W030 */
+/*jshint -W083 */ 
 /**
  * @global {array} for up to 3 enemy objects
  * @global {object} for one player object
@@ -41,7 +43,7 @@ var Enemy = function() {
     this.moveWithRandonSpeed();
     this.width = 75;
     this.height = 50;
-}
+};
 
 /**
  * @function update
@@ -94,12 +96,12 @@ Enemy.prototype.moveWithRandonSpeed = function(){
  * @return {boolean} indicates whether collision happened or not.
  */
 Enemy.prototype.checkCollision = function(){
-     if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
+   if(player.x + player.width >= this.x && player.x <= this.x + this.width &&
        player.y >= this.y && player.y <= this.y + this.height){
-        soundEfx.src = soundHit;
-        soundEfx.play();
-        return true;
-    };
+       soundEfx.src = soundHit;
+       soundEfx.play();
+       return true;
+    }
     return false;
 };
 
@@ -216,10 +218,10 @@ Player.prototype.handleInput = function(direction){
   this.direction = direction; 
   switch(direction){
      case 'left':
-        ((!this.onLeftLimit()) && ( this.x -= 50));
+        ((!this.onLeftLimit()) && (this.x -= 50));
         break;
      case 'right':
-        (!this.onRightLimit()) && ( this.x += 50);
+        (!this.onRightLimit()) && (this.x += 50);
         break;
      case 'up': 
         (!this.onUpLimit()) && (this.y -= 50);
@@ -258,7 +260,7 @@ Player.prototype.reduceHeart = function(){
         var y = -23;
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(x, y, 400, 70);  
-        (player.hearts == 0) && (player.gameOver());
+        (player.hearts === 0) && (player.gameOver());
     }
 }; 
 
@@ -317,7 +319,6 @@ Gem.prototype.getRandomImageURL = function() {
  */
 Gem.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    console.log("render", this.sprite, this.x, this.y)
 };
 
 /**
@@ -347,7 +348,7 @@ Gem.prototype.checkCollision = function(){
         soundEfx.src = soundEatGem;
         soundEfx.play();
         return true;
-    };
+    }
     return false;
 };
 
@@ -388,7 +389,7 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-    if(allowedKeys[e.keyCode] == null || allowedKeys[e.keyCode] == undefined)
+    if(allowedKeys[e.keyCode] === null || allowedKeys[e.keyCode] === undefined)
        return;
     player.handleInput(allowedKeys[e.keyCode]);
 });
@@ -418,7 +419,7 @@ function restratGame() {
     score = 0;
     allEnemies = [];
     startGame(3);
-};
+}
  
  /**
  * @function getRandomValue
@@ -436,7 +437,7 @@ function getRandomValue(min, max) {
  * when it is calling by startGame function
  */
 function playBackgroundSound() {
-    elems = [], index = 0
+    elems = [], index = 0;
     for (var i = 0; i < 10; i++) {
         backgroundSound = document.getElementById('audio');
         elems.push(backgroundSound);
