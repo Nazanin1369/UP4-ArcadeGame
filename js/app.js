@@ -1,3 +1,4 @@
+/* jshint strict: true */
 /**
  * @global {array} for up to 3 enemy objects
  * @global {object} for one player object
@@ -9,6 +10,9 @@
  * @global {string} path to gameOver ".wav" file
  * @global {string} path to bugHit ".wav" file
  * @global {object} backsound audio element
+ * @global {number} interval if for the setInterval function
+ * to initialize gems. Using this in @Link{gameOver} function 
+ * to clear the interval.
  */
 var allEnemies = [];
 var player;
@@ -20,6 +24,7 @@ var soundEatGem = "sounds/gem.wav"; //Eat Gem sound efx
 var soundGameOver = "sounds/gameOver.wav";
 var soundHit = "sounds/hit.wav";
 var backSound;
+var gemItervId;
 
 /**
  * @function Enemies
@@ -238,6 +243,7 @@ Player.prototype.gameOver = function(){
     backgroundSound.pause();
     soundEfx.src = soundGameOver;
     soundEfx.play();
+    clearInterval(gemItervId);
 };
 
 /**
@@ -470,7 +476,7 @@ function startGame(enemiesNumber){
     player.assignScore(score);
     gem = new Gem();
     gem.initialize();
-    nIntervId = setInterval(function(){
+    gemItervId = setInterval(function(){
             gem.hide();
             gem = new Gem();
             gem.initialize();
