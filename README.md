@@ -1,6 +1,13 @@
-frontend-nanodegree-arcade-game
+###frontend-nanodegree-arcade-game
 ===============================
 
-Students should use this rubric: https://www.udacity.com/course/viewer#!/c-ud015/l-3072058665/m-3072588797
+HTML5 canvas game using pure Javascript.
+Game includes a player, some bugs and gems.
 
-for self-checking their submission.
+##### Game Rules:
+* Add 20 scores if you reach the top.
+* Add various scores by collecting gems.
+* Prevent colliding with bugs!
+* You only have 3 hearts. Each time you collide with a bug you will loose one.
+* When your hearts are done, you consider a looser and the game will over.
+* Becareful!!! Stone is not a gem. If you collide with a stone you will loose a heart.
