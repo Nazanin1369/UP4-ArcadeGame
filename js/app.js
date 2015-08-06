@@ -10,6 +10,10 @@ var player;
 var gem;
 var isGameOver;
 var score;
+var soundEfx, backgroundSound; // Sound Efx
+var soundEatGem = "sounds/gem.wav"; //Eat Gem sound efx
+var soundGameOver = "sounds/gameOver.wav";
+var backSound;
 
 // Enemies our player must avoid
 var Enemy = function() {
@@ -219,6 +223,10 @@ Player.prototype.gameOver = function(){
     document.getElementById('game-over').style.display = 'block';
     document.getElementById('game-over-overlay').style.display = 'block';
     isGameOver = true;
+    backSound = false;
+    document.getElementById("audio").remove();
+    soundEfx.src = soundGameOver;
+    soundEfx.play();
 };
 
 /**
@@ -319,6 +327,7 @@ Gem.prototype.checkCollision = function(){
        player.y >= this.y && player.y <= this.y + this.height){
         score += this.gemScoreList();   
         player.assignScore(score);
+        soundEfx.play();
         return true;
     };
     return false;
@@ -403,6 +412,37 @@ function getRandomValue(min, max) {
 }
 
 /**
+ * @function playBackgroundSound
+ * @description it plays the background sound repeatedlly
+ * when it is calling by startGame function
+ */
+function playBackgroundSound() {
+    elems = [], index = 0
+    for (var i = 0; i < 10; i++) {
+        //backgroundSound = new Audio('sounds/background.wav');
+        backgroundSound = document.createElement('audio');
+        backgroundSound.setAttribute('src','sounds/background.wav');
+        elems.push(backgroundSound);
+        backgroundSound.addEventListener("ended", function () {
+           index++; 
+           if(backSound){
+                elems[index].play();
+           }else{
+                backgroundSound.pause();
+                backgroundSound.currentTime = 0;
+           }
+  
+        }, false);
+       if(backSound){
+            elems[index].play();
+        }else{
+            backgroundSound.pause();
+            backgroundSound.currentTime = 0;
+        }
+    }
+}
+
+/**
  * @function startGame
  * @param {number} numEnemies
  * @description The function startGame initializes all global objects (<= 3 enemies,
@@ -410,6 +450,9 @@ function getRandomValue(min, max) {
  */
 function startGame(enemiesNumber){
     score = 0;
+    backSound = true;
+    soundEfx = document.getElementById('soundEfx');
+    playBackgroundSound();
     for(var i = 0; i < enemiesNumber; i++){
         allEnemies.push(new Enemy());
     }
@@ -421,3 +464,7 @@ function startGame(enemiesNumber){
 
 //starting the game
 startGame(3);
+
+
+
+
