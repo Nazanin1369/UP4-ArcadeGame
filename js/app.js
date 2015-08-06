@@ -109,7 +109,7 @@ Enemy.prototype.checkCollision = function(){
  * @function player
  * @description sets up properties for the player
  */
-Player = function(){
+var Player = function(){
   this.sprite = 'images/char-pink-girl.png';
   this.heartSprite = 'images/heart.png';
   this.direction = 'left'; 
@@ -199,7 +199,7 @@ Player.prototype.update = function(dt){
  */
 Player.prototype.render = function(){
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);  
-  for(i = 0; i < this.hearts; i++){
+  for(var i = 0; i < this.hearts; i++){
       var x = 50 * i;
       var y = -23;
       ctx.drawImage(Resources.get(this.heartSprite), x, y);
@@ -258,7 +258,7 @@ Player.prototype.reduceHeart = function(){
     for(; i < max_hearts; i++) {
         var x = 50 * i;
         var y = -23;
-        ctx.fillStyle = "#FFFFFF";
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(x, y, 400, 70);  
         (player.hearts === 0) && (player.gameOver());
     }
