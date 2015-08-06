@@ -9,7 +9,7 @@ Use the following keyboard keys to move:
 * _UP ARROW key for moving to the top
 * _DOWN ARROW key for moving to the bottom
 * _RIGHT ARROW key for moving toward the right side
-* _LEFT ARROW key for moving toward left side
+* _LEFT ARROW key for moving toward the left side
 
 
 ##### Game Rules:
