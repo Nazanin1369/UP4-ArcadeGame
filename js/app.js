@@ -300,7 +300,6 @@ Gem.prototype.initialize = function(){
     this.sprite = this.getRandomImageURL();
     this.x = getRandomValue(0, 4) * 101;
     this.y = getRandomValue(1, 3) * 70;
-    console.log(this.x, this.y, this.sprite);
 };
 
 /**
@@ -437,26 +436,8 @@ function getRandomValue(min, max) {
  * when it is calling by startGame function
  */
 function playBackgroundSound() {
-    elems = [], index = 0;
-    for (var i = 0; i < 10; i++) {
-        backgroundSound = document.getElementById('audio');
-        elems.push(backgroundSound);
-        backgroundSound.addEventListener("ended", function () {
-           index++; 
-           if(backSound){
-               (index < elems.length) && (elems[index].play());  
-           }else{
-                backgroundSound.pause();
-                backgroundSound.currentTime = 0;
-           }
-        }, false);
-       if(backSound){
-            elems[index].play();
-        }else{
-            backgroundSound.pause();
-            backgroundSound.currentTime = 0;
-        }
-    }
+    backgroundSound = document.getElementById('audio');
+    backgroundSound.play();
 }
 
 /**
